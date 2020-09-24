@@ -20,6 +20,8 @@ TARGET_DIR = $(USER_DIR)/target
 include $(ROOT)/make/system-id.mk
 include $(ROOT)/make/targets_list.mk
 
+VPATH := $(VPATH):$(USER_DIR):$(TEST_DIR)
+
 # specify which files that are included in the test in addition to the unittest file.
 # variables available:
 #   <test_name>_SRC
@@ -30,6 +32,7 @@ include $(ROOT)/make/targets_list.mk
 
 alignsensor_unittest_SRC := \
 		$(USER_DIR)/sensors/boardalignment.c \
+		$(USER_DIR)/common/sensor_alignment.c \
 		$(USER_DIR)/common/maths.c
 
 arming_prevention_unittest_SRC := \
@@ -63,6 +66,15 @@ baro_bmp280_unittest_DEFINES := \
                 USE_BARO_BMP280= \
                 USE_BARO_SPI_BMP280=
 
+baro_bmp388_unittest_SRC := \
+		$(USER_DIR)/common/maths.c \
+		$(USER_DIR)/drivers/barometer/barometer_bmp388.c
+
+baro_bmp388_unittest_DEFINES := \
+                USE_EXTI= \
+                USE_BARO_BMP388= \
+                USE_BARO_SPI_BMP388=
+
 baro_ms5611_unittest_SRC := \
 		$(USER_DIR)/drivers/barometer/barometer_ms5611.c
 
@@ -95,10 +107,11 @@ blackbox_encoding_unittest_SRC :=  \
 		$(USER_DIR)/common/typeconversion.c
 
 cli_unittest_SRC := \
-		$(USER_DIR)/interface/cli.c \
+		$(USER_DIR)/cli/cli.c \
+		$(USER_DIR)/common/printf.c \
 		$(USER_DIR)/config/feature.c \
 		$(USER_DIR)/pg/pg.c \
-                $(USER_DIR)/common/typeconversion.c
+		$(USER_DIR)/common/typeconversion.c
 
 cli_unittest_DEFINES := \
 		USE_OSD= \
@@ -126,6 +139,9 @@ flight_failsafe_unittest_SRC := \
 		$(USER_DIR)/fc/rc_modes.c \
 		$(USER_DIR)/fc/runtime_config.c \
 		$(USER_DIR)/flight/failsafe.c
+
+flight_failsafe_unittest_DEFINES := \
+		USE_GPS_RESCUE=
 
 
 flight_imu_unittest_SRC := \
@@ -158,15 +174,20 @@ ledstrip_unittest_SRC := \
 		$(USER_DIR)/io/ledstrip.c
 
 ledstrip_unittest_DEFINES := \
-        USE_LED_STRIP=
-       
-       
+		USE_LED_STRIP=
+
+
 maths_unittest_SRC := \
 		$(USER_DIR)/common/maths.c
 
 
+motor_output_unittest_SRC := \
+		$(USER_DIR)/drivers/dshot.c
+
+
 osd_unittest_SRC := \
-		$(USER_DIR)/io/osd.c \
+		$(USER_DIR)/osd/osd.c \
+		$(USER_DIR)/osd/osd_elements.c \
 		$(USER_DIR)/common/typeconversion.c \
 		$(USER_DIR)/drivers/display.c \
 		$(USER_DIR)/common/maths.c \
@@ -180,6 +201,29 @@ osd_unittest_DEFINES := \
 		USE_RTC_TIME= \
 		USE_ADC_INTERNAL=
 
+link_quality_unittest_SRC := \
+		$(USER_DIR)/osd/osd.c \
+		$(USER_DIR)/osd/osd_elements.c \
+		$(USER_DIR)/common/typeconversion.c \
+		$(USER_DIR)/drivers/display.c \
+		$(USER_DIR)/drivers/serial.c \
+		$(USER_DIR)/common/crc.c \
+		$(USER_DIR)/common/maths.c \
+		$(USER_DIR)/common/printf.c \
+		$(USER_DIR)/common/streambuf.c \
+		$(USER_DIR)/common/time.c \
+		$(USER_DIR)/fc/runtime_config.c \
+		$(USER_DIR)/common/bitarray.c \
+		$(USER_DIR)/fc/rc_modes.c \
+		$(USER_DIR)/rx/rx.c \
+		$(USER_DIR)/pg/pg.c \
+		$(USER_DIR)/rx/crsf.c \
+		$(USER_DIR)/pg/rx.c
+
+link_quality_unittest_DEFINES := \
+		USE_OSD= \
+		USE_CRSF_LINK_STATISTICS= \
+		USE_RX_LINK_QUALITY_INFO=
 
 pg_unittest_SRC := \
 		$(USER_DIR)/pg/pg.c
@@ -224,6 +268,10 @@ rx_rx_unittest_SRC := \
 		$(USER_DIR)/config/feature.c \
 		$(USER_DIR)/pg/rx.c
 
+rx_sumd_unittest_SRC := \
+		$(USER_DIR)/common/crc.c \
+		$(USER_DIR)/common/streambuf.c \
+		$(USER_DIR)/rx/sumd.c
 
 scheduler_unittest_SRC := \
 		$(USER_DIR)/scheduler/scheduler.c \
@@ -233,9 +281,11 @@ scheduler_unittest_SRC := \
 
 sensor_gyro_unittest_SRC := \
 		$(USER_DIR)/sensors/gyro.c \
+		$(USER_DIR)/sensors/gyro_init.c \
 		$(USER_DIR)/sensors/boardalignment.c \
 		$(USER_DIR)/common/filter.c \
 		$(USER_DIR)/common/maths.c \
+		$(USER_DIR)/common/sensor_alignment.c \
 		$(USER_DIR)/drivers/accgyro/accgyro_fake.c \
 		$(USER_DIR)/drivers/accgyro/gyro_sync.c \
 		$(USER_DIR)/pg/pg.c \
@@ -322,14 +372,16 @@ rcdevice_unittest_SRC := \
 		$(USER_DIR)/fc/rc_modes.c \
 		$(USER_DIR)/io/rcdevice.c \
 		$(USER_DIR)/io/rcdevice_cam.c \
+		$(USER_DIR)/pg/pg.c \
 
 pid_unittest_SRC :=  \
 		$(USER_DIR)/common/filter.c \
 		$(USER_DIR)/common/maths.c \
 		$(USER_DIR)/drivers/accgyro/gyro_sync.c \
+		$(USER_DIR)/fc/runtime_config.c \
 		$(USER_DIR)/flight/pid.c \
-		$(USER_DIR)/pg/pg.c \
-		$(USER_DIR)/fc/runtime_config.c
+		$(USER_DIR)/flight/pid_init.c \
+		$(USER_DIR)/pg/pg.c
 
 pid_unittest_DEFINES := \
 		USE_ITERM_RELAX= \
@@ -347,8 +399,8 @@ vtx_unittest_SRC := \
 		$(USER_DIR)/fc/rc_modes.c \
 		$(USER_DIR)/fc/runtime_config.c \
 		$(USER_DIR)/drivers/vtx_common.c \
+		$(USER_DIR)/drivers/vtx_table.c \
 		$(USER_DIR)/io/vtx_control.c \
-		$(USER_DIR)/io/vtx_string.c \
 		$(USER_DIR)/io/vtx.c \
 		$(USER_DIR)/common/bitarray.c
 
@@ -383,18 +435,36 @@ COMMON_FLAGS = \
 	-Wall \
 	-Wextra \
 	-Werror \
+	-Wno-error=unused-command-line-argument \
 	-ggdb3 \
 	-O0 \
 	-DUNIT_TEST \
 	-isystem $(GTEST_DIR)/inc \
 	-MMD -MP
 
+CC_VERSION = $(shell $(CC) -dumpversion)
+CXX_VERSION = $(shell $(CXX) -dumpversion)
+
 ifeq ($(shell $(CC) -v 2>&1 | grep -q "clang version" && echo "clang"),clang)
 COMMON_FLAGS += -fblocks
+ifndef CYGWIN
+ifndef MACOSX
 LDFLAGS	     += -lBlocksRuntime
 endif
+endif
+endif
 
-ifndef MACOSX
+USE_PTHREAD = YES
+USE_COVERAGE = YES
+ifdef MACOSX
+	USE_PTHREAD =
+endif
+ifdef CYGWIN
+	USE_PTHREAD =
+	USE_COVERAGE =
+endif
+
+ifdef USE_PTHREAD
 COMMON_FLAGS += -pthread
 endif
 
@@ -407,7 +477,9 @@ CXX_FLAGS = $(COMMON_FLAGS) \
 	-std=gnu++11
 
 # Compiler flags for coverage instrumentation
+ifdef USE_COVERAGE
 COVERAGE_FLAGS := --coverage
+endif
 
 C_FLAGS   += $(COVERAGE_FLAGS)
 CXX_FLAGS += $(COVERAGE_FLAGS)
@@ -424,8 +496,14 @@ endif
 # Gather up all of the tests.
 TEST_SRCS = $(sort $(wildcard $(TEST_DIR)/*.cc))
 TEST_BASENAMES = $(TEST_SRCS:$(TEST_DIR)/%.cc=%)
-TESTS = $(foreach test,$(TEST_BASENAMES),$(if $($(test)_EXPAND),$(foreach \
-		target,$(filter-out $($(test)_BLACKLIST),$(VALID_TARGETS)),$(test).$(target)),$(test)))
+TESTS_TARGET_SPECIFIC = $(foreach test,$(TEST_BASENAMES),$(if $($(test)_EXPAND),$(test)))
+TESTS_TARGET_SPECIFIC_EXPANDED = $(foreach test,$(TESTS_TARGET_SPECIFIC),$(foreach \
+		target,$(filter-out $($(test)_BLACKLIST),$(VALID_TARGETS)),$(test).$(target)))
+
+TESTS = $(foreach test,$(TEST_BASENAMES),$(if $($(test)_EXPAND),,$(test)))
+TESTS_ALL = $(TESTS) $(TESTS_TARGET_SPECIFIC_EXPANDED)
+TESTS_REPRESENTATIVE = $(TESTS) $(foreach test,$(TESTS_TARGET_SPECIFIC), \
+		$(test).$(word 1,$(filter-out $($(test)_BLACKLIST),$(VALID_TARGETS))))
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -438,8 +516,14 @@ include ../../make/build_verbosity.mk
 
 # House-keeping build targets.
 
-## test        : Build and run the Unit Tests (default goal)
+## test        : Build and run the non target specific Unit Tests (default goal)
 test: $(TESTS:%=test_%)
+
+## test-all : Build and run all Unit Tests
+test-all: $(TESTS_ALL:%=test_%)
+
+## test-representative : Build and run a representative subset of the Unit Tests (i.e. run every expanded test only for the first target)
+test-representative: $(TESTS_REPRESENTATIVE:%=test_%)
 
 ## junittest   : Build and run the Unit Tests, producing Junit XML result files."
 junittest: EXEC_OPTS = "--gtest_output=xml:$<_results.xml"
@@ -464,8 +548,12 @@ help what usage: Makefile
 	@echo "Any of the Unit Test programs can be used as goals to build:"
 	@$(foreach test, $(TESTS), echo "    $(OBJECT_DIR)/$(test)/$(test)";)
 	@echo ""
-	@echo "Any of the Unit Test programs can be used as goals to build and run:"
+	@echo "Any of the Unit Test programs (except for target specific unit tests) can be used as goals to build and run:"
 	@$(foreach test, $(TESTS), echo "    test_$(test)";)
+
+versions:
+	@echo "C compiler: $(CC): $(CC_VERSION)"
+	@echo "C++ compiler: $(CXX): $(CXX_VERSION)"
 
 ## clean       : Cleanup the UnitTest binaries.
 clean :
@@ -600,11 +688,19 @@ test_$1: $(OBJECT_DIR)/$1/$(basename $1)
 endef
 
 
-$(eval $(foreach test,$(TESTS),$(call test-specific-stuff,$(test))))
+ifeq ($(MAKECMDGOALS),test-all)
+    $(eval $(foreach test,$(TESTS_ALL),$(call test-specific-stuff,$(test))))
+else
+    ifeq ($(MAKECMDGOALS),test-representative)
+        $(eval $(foreach test,$(TESTS_REPRESENTATIVE),$(call test-specific-stuff,$(test))))
+    else
+        $(eval $(foreach test,$(TESTS),$(call test-specific-stuff,$(test))))
+    endif
+endif
 
-$(foreach test,$(TESTS),$(if $($(basename $(test))_SRC),,$(error \
+$(foreach test,$(TESTS_ALL),$(if $($(basename $(test))_SRC),,$(error \
 	Test 'unit/$(basename $(test)).cc' has no '$(basename $(test))_SRC' variable defined)))
-$(foreach var,$(filter-out TARGET_SRC,$(filter %_SRC,$(.VARIABLES))),$(if $(filter $(var:_SRC=)%,$(TESTS)),,$(error \
+$(foreach var,$(filter-out TARGET_SRC,$(filter %_SRC,$(.VARIABLES))),$(if $(filter $(var:_SRC=)%,$(TESTS_ALL)),,$(error \
 	Variable '$(var)' has no 'unit/$(var:_SRC=).cc' test)))
 
 
@@ -621,4 +717,3 @@ target_list:
 	@echo $(foreach target,$(ALT_TARGETS),$(target)\>$(call get_base_target,$(target)))
 	@echo ========== ALT/BASE FULL MAPPING ==========
 	@echo $(foreach target,$(VALID_TARGETS),$(target)\>$(call get_base_target,$(target)))
-

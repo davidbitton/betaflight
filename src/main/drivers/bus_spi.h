@@ -33,7 +33,7 @@
 #define SPI_IO_AF_SCK_CFG       IO_CONFIG(GPIO_Mode_AF,  GPIO_Speed_50MHz, GPIO_OType_PP, GPIO_PuPd_DOWN)
 #define SPI_IO_AF_MISO_CFG      IO_CONFIG(GPIO_Mode_AF,  GPIO_Speed_50MHz, GPIO_OType_PP, GPIO_PuPd_UP)
 #define SPI_IO_CS_CFG           IO_CONFIG(GPIO_Mode_OUT, GPIO_Speed_50MHz, GPIO_OType_PP, GPIO_PuPd_NOPULL)
-#elif defined(STM32F7)
+#elif defined(STM32F7) || defined(STM32H7) || defined(STM32G4)
 #define SPI_IO_AF_CFG           IO_CONFIG(GPIO_MODE_AF_PP, GPIO_SPEED_FREQ_VERY_HIGH, GPIO_NOPULL)
 #define SPI_IO_AF_SCK_CFG_HIGH  IO_CONFIG(GPIO_MODE_AF_PP, GPIO_SPEED_FREQ_VERY_HIGH, GPIO_PULLUP)
 #define SPI_IO_AF_SCK_CFG_LOW   IO_CONFIG(GPIO_MODE_AF_PP, GPIO_SPEED_FREQ_VERY_HIGH, GPIO_PULLDOWN)
@@ -61,6 +61,18 @@ typedef enum {
     SPI_CLOCK_STANDARD      = 16,  //06.57500 MHz
     SPI_CLOCK_FAST          = 8,   //13.50000 MHz
     SPI_CLOCK_ULTRAFAST     = 2    //54.00000 MHz
+#elif defined(STM32H7)
+    // spi_ker_ck = 100MHz
+    SPI_CLOCK_SLOW          = 128, //00.78125 MHz
+    SPI_CLOCK_STANDARD      = 8,  //12.00000 MHz
+    SPI_CLOCK_FAST          = 4,   //25.00000 MHz
+    SPI_CLOCK_ULTRAFAST     = 2    //50.00000 MHz
+#elif defined(STM32G4)
+    // @170MHz
+    SPI_CLOCK_SLOW          = 128, //00.78125 MHz
+    SPI_CLOCK_STANDARD      = 16,  //10.62500 MHz
+    SPI_CLOCK_FAST          = 8,   //21.25000 MHz
+    SPI_CLOCK_ULTRAFAST     = 4    //42.50000 MHz
 #else
     SPI_CLOCK_SLOW          = 128, //00.56250 MHz
     SPI_CLOCK_STANDARD      = 4,   //09.00000 MHz
@@ -71,7 +83,7 @@ typedef enum {
 
 // De facto standard mode
 // See https://en.wikipedia.org/wiki/Serial_Peripheral_Interface
-// 
+//
 // Mode CPOL CPHA
 //  0    0    0
 //  1    0    1
@@ -89,7 +101,9 @@ typedef enum SPIDevice {
     SPIDEV_1   = 0,
     SPIDEV_2,
     SPIDEV_3,
-    SPIDEV_4
+    SPIDEV_4,
+    SPIDEV_5,
+    SPIDEV_6
 } SPIDevice;
 
 #if defined(STM32F1)
@@ -98,6 +112,8 @@ typedef enum SPIDevice {
 #define SPIDEV_COUNT 3
 #elif defined(STM32F7)
 #define SPIDEV_COUNT 4
+#elif defined(STM32H7)
+#define SPIDEV_COUNT 6
 #else
 #define SPIDEV_COUNT 4
 
@@ -112,7 +128,7 @@ void spiPreinitRegister(ioTag_t iotag, uint8_t iocfg, uint8_t init);
 void spiPreinitByIO(IO_t io);
 void spiPreinitByTag(ioTag_t tag);
 
-bool spiInit(SPIDevice device);
+bool spiInit(SPIDevice device, bool leadingEdge);
 void spiSetDivisor(SPI_TypeDef *instance, uint16_t divisor);
 uint8_t spiTransferByte(SPI_TypeDef *instance, uint8_t data);
 bool spiIsBusBusy(SPI_TypeDef *instance);
@@ -121,8 +137,13 @@ bool spiTransfer(SPI_TypeDef *instance, const uint8_t *txData, uint8_t *rxData, 
 
 uint16_t spiGetErrorCounter(SPI_TypeDef *instance);
 void spiResetErrorCounter(SPI_TypeDef *instance);
+
 SPIDevice spiDeviceByInstance(SPI_TypeDef *instance);
 SPI_TypeDef *spiInstanceByDevice(SPIDevice device);
+
+//
+// BusDevice API
+//
 
 bool spiBusIsBusBusy(const busDevice_t *bus);
 
@@ -150,5 +171,11 @@ uint8_t spiBusTransactionReadRegister(const busDevice_t *bus, uint8_t reg);
 bool spiBusTransactionReadRegisterBuffer(const busDevice_t *bus, uint8_t reg, uint8_t *data, uint8_t length);
 bool spiBusTransactionTransfer(const busDevice_t *bus, const uint8_t *txData, uint8_t *rxData, int length);
 
+//
+// Config
+//
+
 struct spiPinConfig_s;
 void spiPinConfigure(const struct spiPinConfig_s *pConfig);
+void spiBusDeviceRegister(const busDevice_t *bus);
+uint8_t spiGetRegisteredDeviceCount(void);

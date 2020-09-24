@@ -59,7 +59,7 @@
 #undef USE_TELEMETRY_SRXL
 #endif
 
-#define ENABLE_DSHOT_DMAR       true
+#define ENABLE_DSHOT_DMAR       DSHOT_DMAR_ON
 
 #define LED0_PIN                PB3
 #define USE_BEEPER 
@@ -77,7 +77,6 @@
 #define GYRO_1_ALIGN            CW90_DEG
 #define USE_ACC
 #define USE_ACC_SPI_MPU6000
-#define ACC_1_ALIGN             CW90_DEG
 
 #define USE_VCP
 #if defined(CRAZYBEEF3DX)
@@ -117,8 +116,8 @@
 #define FLYSKY_2A_CHANNEL_COUNT 14
 #define RX_SPI_INSTANCE         SPI2
 #define RX_NSS_PIN              SPI2_NSS_PIN
-#define RX_IRQ_PIN              PA8
-#define BINDPLUG_PIN            PA9
+#define RX_SPI_EXTI_PIN         PA8
+#define RX_SPI_BIND_PIN         PA9
 #define RX_SPI_LED_PIN          PA10
 #define DEFAULT_FEATURES        (FEATURE_TELEMETRY | FEATURE_OSD | FEATURE_MOTOR_STOP)
 #elif defined(CRAZYBEEF3DX)
@@ -131,23 +130,23 @@
 #define USE_RX_SPI
 #define USE_RX_FRSKY_SPI_D
 #define USE_RX_FRSKY_SPI_X
-#define USE_RX_FRSKY_SPI_TELEMETRY
 #define USE_RX_SFHSS_SPI
+#define USE_RX_REDPINE_SPI
 #define DEFAULT_RX_FEATURE      FEATURE_RX_SPI	
 #define RX_SPI_DEFAULT_PROTOCOL RX_SPI_FRSKY_X
+#define USE_RX_FRSKY_SPI_TELEMETRY
+
 #define RX_SPI_INSTANCE         SPI2
 #define RX_NSS_PIN              SPI2_NSS_PIN
-#define RX_CC2500_SPI_GDO_0_PIN  PA8
+#define RX_SPI_EXTI_PIN         PA8
 #define RX_SPI_LED_PIN          PA10
-#define BINDPLUG_PIN            PA9
+#define RX_SPI_BIND_PIN         PA9
 #define DEFAULT_FEATURES        (FEATURE_TELEMETRY | FEATURE_OSD | FEATURE_MOTOR_STOP)
 #endif
 
 #define USE_MAX7456
 #define MAX7456_SPI_INSTANCE    SPI1
 #define MAX7456_SPI_CS_PIN      PB1
-#define MAX7456_SPI_CLK         (SPI_CLOCK_STANDARD)
-#define MAX7456_RESTORE_CLK     (SPI_CLOCK_FAST)
 
 #define USE_ADC
 #define DEFAULT_VOLTAGE_METER_SOURCE VOLTAGE_METER_ADC
